@@ -100,7 +100,7 @@ jobs:
         cmake %GITHUB_WORKSPACE%\sigil ^
         -G "Ninja" ^
         -DCMAKE_BUILD_TYPE=%BUILD_TYPE% ^
-        -DTRY_NEWER_FIND_PYTHON ^
+        -DTRY_NEWER_FINDPYTHON3=1 ^
         -DPYTHON3_LIBRARIES="C:\%PYTHON%\libs\python38.lib" ^
         -DPYTHON3_INCLUDE_DIRS="C:\%PYTHON%\include" ^
         -DPYTHON3_EXECUTABLE="C:\%PYTHON%\python.exe" ^
