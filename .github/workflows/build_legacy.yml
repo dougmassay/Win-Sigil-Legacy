@@ -28,7 +28,8 @@ jobs:
     - name: Get Sigil Windows source asset
       id: get_src_asset
       run: |
-        Invoke-WebRequest "https://github.com/Sigil-Ebook/Sigil/archive/refs/tags/${{ github.event.inputs.tag_name }}.zip" -OutFile 'INSTALLER-AMD64.exe'Sigil-${{ github.event.inputs.tag_name }}.zip
+        $URL = "https://github.com/Sigil-Ebook/Sigil/archive/refs/tags/${{ github.event.inputs.tag_name }}.zip"
+        Invoke-WebRequest $URL -OutFile 'Sigil-${{ github.event.inputs.tag_name }}.zip'
 
     - name: Get Sigil Windows source sig
       id: get_sig_asset
