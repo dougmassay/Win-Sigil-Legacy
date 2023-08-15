@@ -28,17 +28,12 @@ jobs:
     - name: Get Sigil Windows source asset
       id: get_src_asset
       run: |
-        $URL = "https://github.com/Sigil-Ebook/Sigil/archive/refs/tags/${{ github.event.inputs.tag_name }}.zip"
+        $TAG = "${{ github.event.inputs.tag_name }}
+        $URL = "https://github.com/Sigil-Ebook/Sigil/archive/refs/tags/$TAG.zip"
         Invoke-WebRequest $URL -OutFile 'Sigil-${{ github.event.inputs.tag_name }}.zip'
+        $URL = "https://github.com/Sigil-Ebook/Sigil/releases/download/$TAG/Sigil-$TAG.zip.sig"
+        Invoke-WebRequest $URL -OutFile 'Sigil-Sigil-$TAG.zip.sig'
       shell: pwsh
-
-    - name: Get Sigil Windows source sig
-      id: get_sig_asset
-      uses: dsaltares/fetch-gh-release-asset@master
-      with:
-        repo: 'Sigil-Ebook/Sigil'
-        version: 'tags/${{ github.event.inputs.tag_name }}'
-        file: 'Sigil-${{ github.event.inputs.tag_name }}.zip'
 
 #    - name: Create Release
 #      if: ${{ steps.check_tag_name.outputs.match != '' }}
