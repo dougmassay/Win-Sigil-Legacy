@@ -28,9 +28,9 @@ jobs:
     - name: Get Sigil Windows source asset
       id: get_src_asset
       run: |
-        $TAG = "${{ github.event.inputs.tag_name }}
+        $TAG = "${{ github.event.inputs.tag_name }}"
         $URL = "https://github.com/Sigil-Ebook/Sigil/archive/refs/tags/$TAG.zip"
-        Invoke-WebRequest $URL -OutFile 'Sigil-${{ github.event.inputs.tag_name }}.zip'
+        Invoke-WebRequest $URL -OutFile 'Sigil-$TAG.zip'
         $URL = "https://github.com/Sigil-Ebook/Sigil/releases/download/$TAG/Sigil-$TAG.zip.sig"
         Invoke-WebRequest $URL -OutFile 'Sigil-Sigil-$TAG.zip.sig'
       shell: pwsh
