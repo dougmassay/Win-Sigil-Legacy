@@ -41,7 +41,7 @@ jobs:
       shell: cmd
       run: |
         set PATH=C:\%PYTHON%;C:\%PYTHON%\Scripts;%PATH%
-        python -m pip install pip==21.0.1
+        python -m pip install --upgrade pip
         pip install six==1.16.0
         pip install html5lib==1.1
         pip install regex==2021.11.10
@@ -97,14 +97,14 @@ jobs:
       run: |
         set PATH=C:\%PYTHON%;${{runner.workspace}}\%QT%\bin;%PATH%
         call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x86 -vcvars_ver=14.1
-        echo %PATH%
         cmake %GITHUB_WORKSPACE%\sigil ^
         -G "Ninja" ^
         -DCMAKE_BUILD_TYPE=%BUILD_TYPE% ^
-        -DPYTHON_LIBRARY="C:\%PYTHON%\libs\python38.lib" ^
-        -DPYTHON_INCLUDE_DIR="C:\%PYTHON%\include" ^
-        -DPYTHON_EXECUTABLE="C:\%PYTHON%\python.exe" ^
-        -DUSE_ALT_ICONS=1 ^
+        -DTRY_NEWER_FIND_PYTHON ^
+        -DPYTHON3_LIBRARIES="C:\%PYTHON%\libs\python38.lib" ^
+        -DPYTHON3_INCLUDE_DIRS="C:\%PYTHON%\include" ^
+        -DPYTHON3_EXECUTABLE="C:\%PYTHON%\python.exe" ^
+        -DBUILD_FOR_WIN7=1 ^
         -DQt5_DIR="${{runner.workspace}}\$QT\lib\cmake\Qt5"
         ninja -j2
 
@@ -116,7 +116,7 @@ jobs:
         set /p RedistVersion=<"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\Microsoft.VCRedistVersion.default.txt"
         set REDIST=C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Redist\MSVC\%RedistVersion%\vcredist_x86.exe
         echo "%REDIST%"
-        cp '%REDIST%' %GITHUB_WORKSPACE%\installer\
+        cp '%REDIST%' %GITHUB_WORKSPACE%\sigil\installer\
         call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x86 -vcvars_ver=14.1
         ninja -j2 makeinstaller
 
