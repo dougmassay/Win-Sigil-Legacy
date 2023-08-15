@@ -1,0 +1,55 @@
+name: Create Legacy Sigil for Windows
+
+on:
+  workflow_dispatch: 
+    branches: master
+    inputs:
+      tag_name:
+        description: 'Sigil tag to use'
+        required: true
+        default: ''
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      with:
+        path: main
+
+    - name: Checkout Sigil Tag
+      uses: actions/checkout@v3
+      with:
+        repository: 'Sigil-Ebook/Sigil'
+        ref: '${{ github.event.inputs.tag_name }}'
+        path: 'sigil'
+      
+    - name: Get Sigil Windows source asset
+      id: get_src_asset
+      run: |
+        URL="https://github.com/Sigil-Ebook/Sigil/archive/refs/tags/${{ github.event.inputs.tag_name }}.zip"
+        curl -L -o Sigil-${{ github.event.inputs.tag_name }}.zip ${URL}
+
+    - name: Get Sigil Windows source sig
+      id: get_sig_asset
+      uses: dsaltares/fetch-gh-release-asset@master
+      with:
+        repo: 'Sigil-Ebook/Sigil'
+        version: 'tags/${{ github.event.inputs.tag_name }}'
+        file: 'Sigil-${{ github.event.inputs.tag_name }}.zip'
+
+#    - name: Create Release
+#      if: ${{ steps.check_tag_name.outputs.match != '' }}
+#      uses: ncipollo/release-action@v1
+#      with:
+#        token: ${{ secrets.ROBO_ACTIONS }}
+#        name: ${{ steps.create_archive.outputs.fname }}
+#        tag: ${{ github.event.inputs.tag_name }}
+#        body: |
+#          Changes in this Release
+#          - First Change
+#          - Second Change
+#        draft: true
+#        prerelease: false
+#        artifacts: "./${{ steps.create_archive.outputs.fname }}.tar.gz.sig, ./${{ steps.create_archive.outputs.fname }}.zip.sig"
