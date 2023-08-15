@@ -8,10 +8,16 @@ on:
         description: 'Sigil tag to use'
         required: true
         default: ''
+env:
+  BUILD_TYPE: Release
+  DOWNLOADQT: https://github.com/dougmassay/win-qtwebkit-5.212/releases/download/v5.212-1/MyQtx86_5.12.9_VS2017_WE.7z
+  QT: MyQtx64_WE\Qt5.12.9
+  INNO: C:\Program Files (x86)\Inno Setup 6
+  PYTHON: \hostedtoolcache\windows\Python\3.8.3\x86
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2019
     steps:
     - name: Checkout
       uses: actions/checkout@v3
@@ -24,8 +30,33 @@ jobs:
         repository: 'Sigil-Ebook/Sigil'
         ref: '${{ github.event.inputs.tag_name }}'
         path: 'sigil'
+
+    - name: Set up Python 3.8.3
+      uses: actions/setup-python@v4
+      with:
+        architecture: x86
+        python-version: 3.8.3
+
+    - name: Install pip dependencies
+      shell: cmd
+      run: |
+        set PATH=C:\%PYTHON%;C:\%PYTHON%\Scripts;%PATH%
+        python -m pip install pip==21.0.1
+        pip install six==1.16.0
+        pip install html5lib==1.1
+        pip install regex==2021.11.10
+        pip install css-parser==1.0.7
+        pip install cssselect==1.1.0
+        pip install urllib3==1.26.7
+        pip install certifi==2021.10.8
+        pip install dulwich==0.20.26 --global-option="--pure"
+        pip install chardet==4.0.0
+        pip install pillow==8.4.0
+        pip install PyQt5==5.12.3 PyQt5-sip==12.8.1
+        pip install PyQtWebEngine==5.12.1
+        pip install lxml==4.7.1
       
-    - name: Get Sigil Windows source asset
+    - name: Get Sigil Windows source asset and sig
       id: get_src_asset
       run: |
         $TAG = "${{ github.event.inputs.tag_name }}"
@@ -34,6 +65,60 @@ jobs:
         $URL = "https://github.com/Sigil-Ebook/Sigil/releases/download/$TAG/Sigil-$TAG.zip.sig"
         Invoke-WebRequest $URL -OutFile 'Sigil-Sigil-$TAG.zip.sig'
       shell: pwsh
+
+    - name: Cache Custom Qt
+      uses: actions/cache@v2
+      with:
+        path: ${{runner.workspace}}\${{env.QT}}
+        key: ${{ runner.os }}-qtdeps-${{hashFiles('**/reset-win-caches.txt')}}
+  
+    - name: Install Custom Qt
+      shell: cmd
+      run: |
+        if not exist ${{runner.workspace}}\%QT% cd ${{runner.workspace}} & curl -L -o webkit.7z "%DOWNLOADQT%" & 7z x webkit.7z -y
+        if exist ${{runner.workspace}}\%QT%\bin cd ${{runner.workspace}}\%QT%\bin & echo [Paths] > qt.conf
+        if exist ${{runner.workspace}}\%QT%\bin cd ${{runner.workspace}}\%QT%\bin & echo Prefix=.. >> qt.conf
+
+    - uses: lukka/get-cmake@latest
+
+    - name: Create Build Environment
+      shell: cmd
+      run: |
+        set PATH=${{runner.workspace}}\%QT%\bin;%PATH%
+        echo ${{runner.workspace}}
+        mkdir ${{runner.workspace}}\build
+        cd ${{runner.workspace}}\build
+        qmake -v
+        python --version
+
+    - name: Build Sigil
+      shell: cmd
+      working-directory: ${{runner.workspace}}\build
+      run: |
+        set PATH=C:\%PYTHON%;${{runner.workspace}}\%QT%\bin;%PATH%
+        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x86 -vcvars_ver=14.1
+        echo %PATH%
+        cmake %GITHUB_WORKSPACE%\sigil ^
+        -G "Ninja" ^
+        -DCMAKE_BUILD_TYPE=%BUILD_TYPE% ^
+        -DPYTHON_LIBRARY="C:\%PYTHON%\libs\python38.lib" ^
+        -DPYTHON_INCLUDE_DIR="C:\%PYTHON%\include" ^
+        -DPYTHON_EXECUTABLE="C:\%PYTHON%\python.exe" ^
+        -DUSE_ALT_ICONS=1 ^
+        -DQt5_DIR="${{runner.workspace}}\$QT\lib\cmake\Qt5"
+        ninja -j2
+
+    - name: Build Installer
+      shell: cmd
+      working-directory: ${{runner.workspace}}\build
+      run: |
+        set PATH=C:\%PYTHON%;%INNO%;${{runner.workspace}}\%QT%\bin;%PATH%
+        set /p RedistVersion=<"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\Microsoft.VCRedistVersion.default.txt"
+        set REDIST=C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Redist\MSVC\%RedistVersion%\vcredist_x86.exe
+        echo "%REDIST%"
+        cp '%REDIST%' %GITHUB_WORKSPACE%\installer\
+        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x86 -vcvars_ver=14.1
+        ninja -j2 makeinstaller
 
 #    - name: Create Release
 #      if: ${{ steps.check_tag_name.outputs.match != '' }}
