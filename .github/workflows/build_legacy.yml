@@ -120,6 +120,12 @@ jobs:
         call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x86 -vcvars_ver=14.1
         ninja -j2 makeinstaller
 
+    - uses: actions/upload-artifact@v3
+      with:
+        name: sigil-installer
+        path: ${{runner.workspace}}\build\installer\*.exe
+        retention-days: 3
+
 #    - name: Create Release
 #      if: ${{ steps.check_tag_name.outputs.match != '' }}
 #      uses: ncipollo/release-action@v1
