@@ -11,7 +11,7 @@ on:
 env:
   BUILD_TYPE: Release
   DOWNLOADQT: https://github.com/dougmassay/win-qtwebkit-5.212/releases/download/v5.212-1/MyQtx86_5.12.9_VS2017_WE.7z
-  QT: MyQtx64_WE\Qt5.12.9
+  QT: MyQtx86_WE\Qt5.12.9
   INNO: C:\Program Files (x86)\Inno Setup 6
   PYTHON: \hostedtoolcache\windows\Python\3.8.3\x86
 
