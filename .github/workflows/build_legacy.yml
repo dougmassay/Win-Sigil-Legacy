@@ -67,7 +67,7 @@ jobs:
       shell: pwsh
 
     - name: Cache Custom Qt
-      uses: actions/cache@v2
+      uses: actions/cache@v3
       with:
         path: ${{runner.workspace}}\${{env.QT}}
         key: ${{ runner.os }}-qtdeps-${{hashFiles('**/reset-win-caches.txt')}}
