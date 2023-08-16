@@ -28,7 +28,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
       with:
-        path: main
+        path: 'main'
 
     - name: Checkout Sigil Tag
       uses: actions/checkout@v3
@@ -44,7 +44,7 @@ jobs:
         python-version: ${{env.PY_VER}}
 
     - name: Install pip dependencies
-      working-directory: ${{runner.workspace}}\main
+      working-directory: ${{GITHUB_WORKSPACE}}\main
       shell: cmd
       run: |
         set PATH=C:\%PYTHON%;C:\%PYTHON%\Scripts;%PATH%
