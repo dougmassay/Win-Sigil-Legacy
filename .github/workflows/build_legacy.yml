@@ -11,15 +11,15 @@ on:
 env:
   BUILD_TYPE: Release
   VC: C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC
-  VARSALL: ${{env.VC}}\Auxiliary\Build\vcvarsall.bat
+  VARSALL: C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat
   TOOLCHAIN: 14.1
   ARCH: x86
   QT_MAJ_VER: 5
-  QT: MyQt${{env.ARCH}}_WE\Qt5.12.9
-  DOWNLOADQT: https://github.com/dougmassay/win-qtwebkit-5.212/releases/download/v5.212-1/${{env.QT}}_VS2017_WE.7z
+  QT: MyQtx86_WE\Qt5.12.9
+  DOWNLOADQT: https://github.com/dougmassay/win-qtwebkit-5.212/releases/download/v5.212-1/MyQtx86_5.12.9_VS2017_WE.7z
   INNO: C:\Program Files (x86)\Inno Setup 6
   PY_VER: 3.8.3
-  PYTHON: \hostedtoolcache\windows\Python\${{env.PY_VER}}\${{env.ARCH}}
+  PYTHON: \hostedtoolcache\windows\Python\3.8.3\x86
 
 jobs:
   build:
