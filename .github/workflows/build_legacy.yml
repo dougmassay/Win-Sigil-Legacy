@@ -50,15 +50,15 @@ jobs:
     #     python -m pip install --upgrade pip
     #     python -m pip install -r %GITHUB_WORKSPACE%\main\requirements.txt
       
-    - name: Get Sigil Windows source asset and sig
-      id: get_src_asset
-      run: |
-        $TAG = "${{ github.event.inputs.tag_name }}"
-        $URL = "https://github.com/Sigil-Ebook/Sigil/archive/refs/tags/$TAG.zip"
-        Invoke-WebRequest $URL -OutFile 'Sigil-$TAG.zip'
-        $URL = "https://github.com/Sigil-Ebook/Sigil/releases/download/$TAG/Sigil-$TAG.zip.sig"
-        Invoke-WebRequest $URL -OutFile 'Sigil-Sigil-$TAG.zip.sig'
-      shell: pwsh
+    # - name: Get Sigil Windows source asset and sig
+    #   id: get_src_asset
+    #   run: |
+    #     $TAG = "${{ github.event.inputs.tag_name }}"
+    #     $URL = "https://github.com/Sigil-Ebook/Sigil/archive/refs/tags/$TAG.zip"
+    #     Invoke-WebRequest $URL -OutFile 'Sigil-$TAG.zip'
+    #     $URL = "https://github.com/Sigil-Ebook/Sigil/releases/download/$TAG/Sigil-$TAG.zip.sig"
+    #     Invoke-WebRequest $URL -OutFile 'Sigil-Sigil-$TAG.zip.sig'
+    #   shell: pwsh
 
     # - name: Cache Custom Qt
     #   uses: actions/cache@v3
@@ -123,6 +123,7 @@ jobs:
     - name: Write CHANGELOG
       shell: bash
       run: |
+        which bash
         echo "$(date) - built Sigil-v${{ github.event.inputs.tag_name }}" >> $GITHUB_WORKSPACE/main/CHANGELOG.txt
 
     # - name: Commit CHANGELOG
