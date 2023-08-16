@@ -37,18 +37,18 @@ jobs:
         ref: '${{ github.event.inputs.tag_name }}'
         path: 'sigil'
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        architecture: ${{env.ARCH}}
-        python-version: ${{env.PY_VER}}
+    # - name: Set up Python
+    #   uses: actions/setup-python@v4
+    #   with:
+    #     architecture: ${{env.ARCH}}
+    #     python-version: ${{env.PY_VER}}
 
-    - name: Install pip dependencies
-      shell: cmd
-      run: |
-        set PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
-        python -m pip install --upgrade pip
-        python -m pip install -r %GITHUB_WORKSPACE%\main\requirements.txt
+    # - name: Install pip dependencies
+    #   shell: cmd
+    #   run: |
+    #     set PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
+    #     python -m pip install --upgrade pip
+    #     python -m pip install -r %GITHUB_WORKSPACE%\main\requirements.txt
       
     - name: Get Sigil Windows source asset and sig
       id: get_src_asset
@@ -60,81 +60,81 @@ jobs:
         Invoke-WebRequest $URL -OutFile 'Sigil-Sigil-$TAG.zip.sig'
       shell: pwsh
 
-    - name: Cache Custom Qt
-      uses: actions/cache@v3
-      with:
-        path: ${{runner.workspace}}\${{env.QT}}
-        key: ${{ runner.os }}-qtdeps-${{hashFiles('**/reset-win-caches.txt')}}
+    # - name: Cache Custom Qt
+    #   uses: actions/cache@v3
+    #   with:
+    #     path: ${{runner.workspace}}\${{env.QT}}
+    #     key: ${{ runner.os }}-qtdeps-${{hashFiles('**/reset-win-caches.txt')}}
   
-    - name: Install Custom Qt
-      shell: cmd
-      run: |
-        if not exist ${{runner.workspace}}\%QT% cd ${{runner.workspace}} & curl -L -o webkit.7z "%DOWNLOADQT%" & 7z x webkit.7z -y
-        if exist ${{runner.workspace}}\%QT%\bin cd ${{runner.workspace}}\%QT%\bin & echo [Paths] > qt.conf
-        if exist ${{runner.workspace}}\%QT%\bin cd ${{runner.workspace}}\%QT%\bin & echo Prefix=.. >> qt.conf
+    # - name: Install Custom Qt
+    #   shell: cmd
+    #   run: |
+    #     if not exist ${{runner.workspace}}\%QT% cd ${{runner.workspace}} & curl -L -o webkit.7z "%DOWNLOADQT%" & 7z x webkit.7z -y
+    #     if exist ${{runner.workspace}}\%QT%\bin cd ${{runner.workspace}}\%QT%\bin & echo [Paths] > qt.conf
+    #     if exist ${{runner.workspace}}\%QT%\bin cd ${{runner.workspace}}\%QT%\bin & echo Prefix=.. >> qt.conf
 
-    - uses: lukka/get-cmake@latest
+    # - uses: lukka/get-cmake@latest
 
-    - name: Create Build Environment
-      shell: cmd
-      run: |
-        set PATH=${{runner.workspace}}\%QT%\bin;%PATH%
-        echo ${{runner.workspace}}
-        mkdir ${{runner.workspace}}\build
-        cd ${{runner.workspace}}\build
-        qmake -v
-        python --version
+    # - name: Create Build Environment
+    #   shell: cmd
+    #   run: |
+    #     set PATH=${{runner.workspace}}\%QT%\bin;%PATH%
+    #     echo ${{runner.workspace}}
+    #     mkdir ${{runner.workspace}}\build
+    #     cd ${{runner.workspace}}\build
+    #     qmake -v
+    #     python --version
 
-    - name: Build Sigil
-      shell: cmd
-      working-directory: ${{runner.workspace}}\build
-      run: |
-        set PATH=C:\%PYTHON%;${{runner.workspace}}\%QT%\bin;%PATH%
-        call "%VARSALL%" %ARCH% -vcvars_ver=%TOOLCHAIN%
-        cmake %GITHUB_WORKSPACE%\sigil ^
-        -G "Ninja" ^
-        -DCMAKE_BUILD_TYPE=%BUILD_TYPE% ^
-        -DTRY_NEWER_FINDPYTHON3=1 ^
-        -DPYTHON3_LIBRARIES="C:\%PYTHON%\libs\python38.lib" ^
-        -DPYTHON3_INCLUDE_DIRS="C:\%PYTHON%\include" ^
-        -DPYTHON3_EXECUTABLE="C:\%PYTHON%\python.exe" ^
-        -DBUILD_FOR_WIN7=1 ^
-        -DQt%QT_MAJ_VER%_DIR="${{runner.workspace}}\$QT\lib\cmake\Qt%QT_MAJ_VER%"
-        ninja -j2
+    # - name: Build Sigil
+    #   shell: cmd
+    #   working-directory: ${{runner.workspace}}\build
+    #   run: |
+    #     set PATH=C:\%PYTHON%;${{runner.workspace}}\%QT%\bin;%PATH%
+    #     call "%VARSALL%" %ARCH% -vcvars_ver=%TOOLCHAIN%
+    #     cmake %GITHUB_WORKSPACE%\sigil ^
+    #     -G "Ninja" ^
+    #     -DCMAKE_BUILD_TYPE=%BUILD_TYPE% ^
+    #     -DTRY_NEWER_FINDPYTHON3=1 ^
+    #     -DPYTHON3_LIBRARIES="C:\%PYTHON%\libs\python38.lib" ^
+    #     -DPYTHON3_INCLUDE_DIRS="C:\%PYTHON%\include" ^
+    #     -DPYTHON3_EXECUTABLE="C:\%PYTHON%\python.exe" ^
+    #     -DBUILD_FOR_WIN7=1 ^
+    #     -DQt%QT_MAJ_VER%_DIR="${{runner.workspace}}\$QT\lib\cmake\Qt%QT_MAJ_VER%"
+    #     ninja -j2
 
-    - name: Build Installer
-      shell: cmd
-      working-directory: ${{runner.workspace}}\build
-      run: |
-        set PATH=C:\%PYTHON%;%INNO%;${{runner.workspace}}\%QT%\bin;%PATH%
-        set /p RedistVersion=<"%VC%\Auxiliary\Build\Microsoft.VCRedistVersion.default.txt"
-        set REDIST=%VC%\Redist\MSVC\%RedistVersion%\vc_redist.%ARCH%.exe
-        echo "%REDIST%"
-        cp '%REDIST%' %GITHUB_WORKSPACE%\sigil\installer\vcredist_%ARCH%.exe
-        call "%VARSALL%" %ARCH% -vcvars_ver=%TOOLCHAIN%
-        ninja -j2 makeinstaller
+    # - name: Build Installer
+    #   shell: cmd
+    #   working-directory: ${{runner.workspace}}\build
+    #   run: |
+    #     set PATH=C:\%PYTHON%;%INNO%;${{runner.workspace}}\%QT%\bin;%PATH%
+    #     set /p RedistVersion=<"%VC%\Auxiliary\Build\Microsoft.VCRedistVersion.default.txt"
+    #     set REDIST=%VC%\Redist\MSVC\%RedistVersion%\vc_redist.%ARCH%.exe
+    #     echo "%REDIST%"
+    #     cp '%REDIST%' %GITHUB_WORKSPACE%\sigil\installer\vcredist_%ARCH%.exe
+    #     call "%VARSALL%" %ARCH% -vcvars_ver=%TOOLCHAIN%
+    #     ninja -j2 makeinstaller
 
-    - uses: actions/upload-artifact@v3
-      with:
-        name: sigil-installer
-        path: ${{runner.workspace}}\build\installer\*.exe
-        retention-days: 3
+    # - uses: actions/upload-artifact@v3
+    #   with:
+    #     name: sigil-installer
+    #     path: ${{runner.workspace}}\build\installer\*.exe
+    #     retention-days: 3
 
     - name: Write CHANGELOG
       shell: bash
       run: |
         echo "$(date) - built Sigil-v${{ github.event.inputs.tag_name }}" >> $GITHUB_WORKSPACE/main/CHANGELOG.txt
 
-    - name: Commit CHANGELOG
-      uses: stefanzweifel/git-auto-commit-action@v4
-      #if: "!github.event.release.prerelease"
-      with:
-        repository: main
-        commit_user_name: My GitHub Actions Bot
-        commit_user_email: my-github-actions-bot@example.org
-        commit_author: Author <actions@github.com>
-        commit_message: "Update CHANGELOG with ${{ steps.get_tag_name.outputs.TAGNAME }} build"
-        branch: master
+    # - name: Commit CHANGELOG
+    #   uses: stefanzweifel/git-auto-commit-action@v4
+    #   #if: "!github.event.release.prerelease"
+    #   with:
+    #     repository: main
+    #     commit_user_name: My GitHub Actions Bot
+    #     commit_user_email: my-github-actions-bot@example.org
+    #     commit_author: Author <actions@github.com>
+    #     commit_message: "Update CHANGELOG with ${{ steps.get_tag_name.outputs.TAGNAME }} build"
+    #     branch: master
 
 #    - name: Create Release
 #      if: ${{ steps.check_tag_name.outputs.match != '' }}
