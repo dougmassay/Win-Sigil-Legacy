@@ -44,12 +44,12 @@ jobs:
         python-version: ${{env.PY_VER}}
 
     - name: Install pip dependencies
-      working-directory: ${{GITHUB_WORKSPACE}}\main
+      #working-directory: ${{GITHUB_WORKSPACE}}\main
       shell: cmd
       run: |
         set PATH=C:\%PYTHON%;C:\%PYTHON%\Scripts;%PATH%
         python -m pip install --upgrade pip
-        python -m pip install -r requirements.txt
+        python -m pip install -r %GITHUB_WORKSPACE%\main\requirements.txt
       
     - name: Get Sigil Windows source asset and sig
       id: get_src_asset
