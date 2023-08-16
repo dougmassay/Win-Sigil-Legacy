@@ -44,10 +44,9 @@ jobs:
         python-version: ${{env.PY_VER}}
 
     - name: Install pip dependencies
-      #working-directory: ${{GITHUB_WORKSPACE}}\main
       shell: cmd
       run: |
-        set PATH=C:\%PYTHON%;C:\%PYTHON%\Scripts;%PATH%
+        set PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
         python -m pip install --upgrade pip
         python -m pip install -r %GITHUB_WORKSPACE%\main\requirements.txt
       
@@ -120,6 +119,22 @@ jobs:
         name: sigil-installer
         path: ${{runner.workspace}}\build\installer\*.exe
         retention-days: 3
+
+    - name: Write CHANGELOG
+      shell: bash
+      run: |
+        echo "$(date) - built Sigil-v${{ github.event.inputs.tag_name }}" >> $GITHUB_WORKSPACE/main/CHANGELOG.txt
+
+    - name: Commit CHANGELOG
+      uses: stefanzweifel/git-auto-commit-action@v4
+      #if: "!github.event.release.prerelease"
+      with:
+        repository: main
+        commit_user_name: My GitHub Actions Bot
+        commit_user_email: my-github-actions-bot@example.org
+        commit_author: Author <actions@github.com>
+        commit_message: "Update CHANGELOG with ${{ steps.get_tag_name.outputs.TAGNAME }} build"
+        branch: master
 
 #    - name: Create Release
 #      if: ${{ steps.check_tag_name.outputs.match != '' }}
