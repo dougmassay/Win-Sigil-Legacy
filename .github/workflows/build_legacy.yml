@@ -11,15 +11,15 @@ on:
 env:
   BUILD_TYPE: Release
   VC: C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC
-  VARSALL: C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat
+  VARSALL: ${{env.VC}}\Auxiliary\Build\vcvarsall.bat
   TOOLCHAIN: 14.1
   ARCH: x86
   QT_MAJ_VER: 5
-  QT: MyQt%ARCH%_WE\Qt5.12.9
-  DOWNLOADQT: https://github.com/dougmassay/win-qtwebkit-5.212/releases/download/v5.212-1/%QT%_VS2017_WE.7z
+  QT: MyQt${{env.ARCH}}_WE\Qt5.12.9
+  DOWNLOADQT: https://github.com/dougmassay/win-qtwebkit-5.212/releases/download/v5.212-1/${{env.QT}}_VS2017_WE.7z
   INNO: C:\Program Files (x86)\Inno Setup 6
   PY_VER: 3.8.3
-  PYTHON: \hostedtoolcache\windows\Python\%PY_VER%\%ARCH%
+  PYTHON: \hostedtoolcache\windows\Python\${{env.PY_VER}}\${{env.ARCH}}
 
 jobs:
   build:
@@ -40,8 +40,8 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        architecture: '%ARCH%'
-        python-version: '%PY_VER%'
+        architecture: ${{env.ARCH}}
+        python-version: ${{env.PY_VER}
 
     - name: Install pip dependencies
       working-directory: ${{runner.workspace}}\main
