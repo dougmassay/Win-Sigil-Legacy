@@ -10,10 +10,16 @@ on:
         default: ''
 env:
   BUILD_TYPE: Release
-  DOWNLOADQT: https://github.com/dougmassay/win-qtwebkit-5.212/releases/download/v5.212-1/MyQtx86_5.12.9_VS2017_WE.7z
-  QT: MyQtx86_WE\Qt5.12.9
+  VC: C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC
+  VARSALL: %VC%\Auxiliary\Build\vcvarsall.bat
+  TOOLCHAIN: 14.1
+  ARCH: x86
+  QT_MAJ_VER: 5
+  QT: MyQt%ARCH%_WE\Qt5.12.9
+  DOWNLOADQT: https://github.com/dougmassay/win-qtwebkit-5.212/releases/download/v5.212-1/%QT%_VS2017_WE.7z
   INNO: C:\Program Files (x86)\Inno Setup 6
-  PYTHON: \hostedtoolcache\windows\Python\3.8.3\x86
+  PY_VER: 3.8.3
+  PYTHON: \hostedtoolcache\windows\Python\%PY_VER%\%ARCH%
 
 jobs:
   build:
@@ -31,30 +37,19 @@ jobs:
         ref: '${{ github.event.inputs.tag_name }}'
         path: 'sigil'
 
-    - name: Set up Python 3.8.3
+    - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        architecture: x86
-        python-version: 3.8.3
+        architecture: %ARCH%
+        python-version: %PY_VER%
 
     - name: Install pip dependencies
+      working-directory: ${{runner.workspace}}\main
       shell: cmd
       run: |
         set PATH=C:\%PYTHON%;C:\%PYTHON%\Scripts;%PATH%
         python -m pip install --upgrade pip
-        pip install six==1.16.0
-        pip install html5lib==1.1
-        pip install regex==2021.11.10
-        pip install css-parser==1.0.7
-        pip install cssselect==1.1.0
-        pip install urllib3==1.26.7
-        pip install certifi==2021.10.8
-        pip install dulwich==0.20.26 --global-option="--pure"
-        pip install chardet==4.0.0
-        pip install pillow==8.4.0
-        pip install PyQt5==5.12.3 PyQt5-sip==12.8.1
-        pip install PyQtWebEngine==5.12.1
-        pip install lxml==4.7.1
+        python -m pip install -r requirements.txt
       
     - name: Get Sigil Windows source asset and sig
       id: get_src_asset
@@ -96,7 +91,7 @@ jobs:
       working-directory: ${{runner.workspace}}\build
       run: |
         set PATH=C:\%PYTHON%;${{runner.workspace}}\%QT%\bin;%PATH%
-        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x86 -vcvars_ver=14.1
+        call "%VARSALL%" %ARCH% -vcvars_ver=%TOOLCHAIN%
         cmake %GITHUB_WORKSPACE%\sigil ^
         -G "Ninja" ^
         -DCMAKE_BUILD_TYPE=%BUILD_TYPE% ^
@@ -105,7 +100,7 @@ jobs:
         -DPYTHON3_INCLUDE_DIRS="C:\%PYTHON%\include" ^
         -DPYTHON3_EXECUTABLE="C:\%PYTHON%\python.exe" ^
         -DBUILD_FOR_WIN7=1 ^
-        -DQt5_DIR="${{runner.workspace}}\$QT\lib\cmake\Qt5"
+        -DQt%QT_MAJ_VER%_DIR="${{runner.workspace}}\$QT\lib\cmake\Qt%QT_MAJ_VER%"
         ninja -j2
 
     - name: Build Installer
@@ -113,11 +108,11 @@ jobs:
       working-directory: ${{runner.workspace}}\build
       run: |
         set PATH=C:\%PYTHON%;%INNO%;${{runner.workspace}}\%QT%\bin;%PATH%
-        set /p RedistVersion=<"C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\Microsoft.VCRedistVersion.default.txt"
-        set REDIST=C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Redist\MSVC\%RedistVersion%\vc_redist.x86.exe
+        set /p RedistVersion=<"%VC%\Auxiliary\Build\Microsoft.VCRedistVersion.default.txt"
+        set REDIST=%VC%\Redist\MSVC\%RedistVersion%\vc_redist.%ARCH%.exe
         echo "%REDIST%"
-        cp '%REDIST%' %GITHUB_WORKSPACE%\sigil\installer\vcredist_x86.exe
-        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x86 -vcvars_ver=14.1
+        cp '%REDIST%' %GITHUB_WORKSPACE%\sigil\installer\vcredist_%ARCH%.exe
+        call "%VARSALL%" %ARCH% -vcvars_ver=%TOOLCHAIN%
         ninja -j2 makeinstaller
 
     - uses: actions/upload-artifact@v3
