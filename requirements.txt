@@ -1,13 +1,13 @@
-pip install six==1.16.0
-pip install html5lib==1.1
-pip install regex==2021.11.10
-pip install css-parser==1.0.7
-pip install cssselect==1.1.0
-pip install urllib3==1.26.7
-pip install certifi==2021.10.8
-pip install dulwich==0.20.26
-pip install chardet==4.0.0
-pip install pillow==8.4.0
-pip install PyQt5==5.12.3 PyQt5-sip==12.8.1
-pip install PyQtWebEngine==5.12.1
-pip install lxml==4.7.1
+six==1.16.0
+html5lib==1.1
+regex==2021.11.10
+css-parser==1.0.7
+cssselect==1.1.0
+urllib3==1.26.7
+certifi==2021.10.8
+dulwich==0.20.26
+chardet==4.0.0
+pillow==8.4.0
+PyQt5==5.12.3 PyQt5-sip==12.8.1
+PyQtWebEngine==5.12.1
+lxml==4.7.1
