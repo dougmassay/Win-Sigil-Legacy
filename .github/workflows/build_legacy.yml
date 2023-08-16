@@ -11,7 +11,7 @@ on:
 env:
   BUILD_TYPE: Release
   VC: C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC
-  VARSALL: %VC%\Auxiliary\Build\vcvarsall.bat
+  VARSALL: C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvarsall.bat
   TOOLCHAIN: 14.1
   ARCH: x86
   QT_MAJ_VER: 5
